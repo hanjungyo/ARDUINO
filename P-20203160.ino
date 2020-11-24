@@ -25,7 +25,7 @@
 // Servo speed control
 #define _SERVO_ANGLE 30   //[3159] 서보의 각도(30º) 
 //[3150] 레일플레이트가 사용자가 원하는 가동범위를 움직일때, 이를 움직이게 하는 서보모터의 가동범위
-#define _SERVO_SPEED 30             //[3147]  서보 속도를 30으로 설정
+#define _SERVO_SPEED 200             //[3147]  서보 속도를 30으로 설정
 
 // Event periods
 #define _INTERVAL_DIST 20   // [3153] Distance Sensing을 20(ms) 마다 실행한다.
@@ -33,7 +33,7 @@
 #define _INTERVAL_SERIAL 100  // [3151] 시리얼 0.1초 마다 업데이트
 
 // PID parameters
-#define _KP 1       // [3158] 비례상수 설정
+#define _KP 1.3       // [3158] 비례상수 설정
 
 
 //////////////////////
@@ -43,8 +43,6 @@
 
 
 // Servo instance
-int a = 70;
-int b = 300;
 Servo myservo;  // [3153] Servo를 제어할 Object를 생성해 준다
 // Distance sensor
 float dist_target; // location to send the ball 
@@ -52,7 +50,8 @@ float dist_raw, dist_ema;    //[3160] 실제 거리측정값과 ema필터를 적
 float dist_filtered;
 
 // global variables
-const float coE[] = {-0.0000006, -0.0006470, 1.4237150, 1.0268762};
+const float coE[] = {-0.0000015, 0.0000505, 1.2657354, 10.1830245};
+
 
 
 // Event periods
@@ -114,10 +113,9 @@ unsigned long time_curr = millis();
      event_dist = false;
   // get a distance reading from the distance sensor
       
-      float x = ir_distance();
+// calibrate distance reading from the IR sensor
+      float x = filtered_ir_distance();
       dist_raw = coE[0] * pow(x, 3) + coE[1] * pow(x, 2) + coE[2] * x + coE[3];
-      dist_raw = filtered_ir_distance();  // [3157] 적외선 선세로 측정한 값에 필터를 적용한 값
-      
   // PID control logic
     error_curr = _DIST_TARGET - dist_raw; // [3158] 목표값 에서 현재값을 뺀 값이 오차값
     pterm = error_curr; 
